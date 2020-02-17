@@ -39,6 +39,7 @@
 #include <navfn/MakeNavPlan.h>
 #include <boost/shared_ptr.hpp>
 #include <costmap_2d/costmap_2d_ros.h>
+#include <tf2_ros/transform_listener.h>
 
 namespace cm = costmap_2d;
 namespace rm = geometry_msgs;
@@ -78,19 +79,9 @@ bool PlannerWithCostmap::makePlanService(navfn::MakeNavPlan::Request& req, navfn
 }
 
 void PlannerWithCostmap::poseCallback(const rm::PoseStamped::ConstPtr& goal) {
-    tf::Stamped<tf::Pose> global_pose;
-    cmap_->getRobotPose(global_pose);
     vector<PoseStamped> path;
     rm::PoseStamped start;
-    start.header.stamp = global_pose.stamp_;
-    start.header.frame_id = global_pose.frame_id_;
-    start.pose.position.x = global_pose.getOrigin().x();
-    start.pose.position.y = global_pose.getOrigin().y();
-    start.pose.position.z = global_pose.getOrigin().z();
-    start.pose.orientation.x = global_pose.getRotation().x();
-    start.pose.orientation.y = global_pose.getRotation().y();
-    start.pose.orientation.z = global_pose.getRotation().z();
-    start.pose.orientation.w = global_pose.getRotation().w();
+    cmap_->getRobotPose(start);
     makePlan(start, *goal, path);
 }
 
@@ -107,9 +98,9 @@ PlannerWithCostmap::PlannerWithCostmap(string name, Costmap2DROS* cmap) :
 int main(int argc, char** argv) {
     ros::init(argc, argv, "global_replanner");
 
-    tf::TransformListener tf(ros::Duration(10));
+    tf2_ros::Buffer tfBuffer;
 
-    costmap_2d::Costmap2DROS lcr("costmap", tf);
+    costmap_2d::Costmap2DROS lcr("costmap", tfBuffer);
 
     global_replanner::PlannerWithCostmap pppp("replanner", &lcr);
 

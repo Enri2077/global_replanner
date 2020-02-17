@@ -45,6 +45,7 @@
 #include <geometry_msgs/Point.h>
 #include <nav_msgs/Path.h>
 #include <tf/tf.h>
+#include <tf/transform_listener.h>
 #include <tf/transform_datatypes.h>
 #include <angles/angles.h>
 #include <vector>
